@@ -67,31 +67,3 @@ def sub3_3(L):
 	for i in range(N):
 		res = L[i][i]*res
 	return res
-
-def transposeM(H):
-	return map(list, zip(*m))
-def getMinor(H,i,j):
-	return [row[:j] + row[j+1:] for row in (H[:i] + H[i+1:])]
-def getdeter(H):
-	if(len(H) == 2):
-		return H[0][0]*H[1][1] - H[0][1]*H[1][0]
-	deter = 0
-	for i in range(len[H]):
-		deter += ((-1)**i)*H[0][i]*getdeter(getMinor(H,0,i))
-	return deter
-
-def sub3_4(det):
-	H, L = makeary()
-	ans = []
-	for i in range(len(H)):
-		Hrow = []
-		for j in range(len(H)):
-			minor = getMinor(H,i,j)
-			Hrow.append(((-1)**(i+j))*getdeter(minor))
-		ans.append(Hrow)
-
-	for i in range(len(ans)):
-		for j in range(len(ans)):
-			ans[i][j] = ans[i][j]/det
-	prtary(ans)
-sub3_1()
