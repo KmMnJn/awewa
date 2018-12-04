@@ -1,33 +1,61 @@
 #include <stdio.h>
 #include <time.h>
+#include <ctime>
 #include <stdlib.h>
 #include <functional>
 #include <algorithm>
 
-#define parent(x) (x-1)/2
-
 using namespace std;
 
-const int arr_size = 1000;
+const int arr_size = 5000;
 
 int qswap, qcomp;
 int hswap, hcomp;
 
-void heap(int *data, int num){
-    for(int i=1; i<num; i++){
-        int child = i;
-        while(child > 0){
-            hcomp++;
-            int root = parent(child);
-            if(data[root] < data[child]){
-                int temp = data[root];
-                data[root] = data[child];
-                data[child] = temp;
-                hswap++;
-            }
-            child = root;
-        }
+void heapify(int arr[], int n, int i) 
+{ 
+    int largest = i; // Initialize largest as root 
+    int l = 2*i + 1; // left = 2*i + 1 
+    int r = 2*i + 2; // right = 2*i + 2 
+  
+    // If left child is larger than root 
+    if (l < n && arr[l] > arr[largest]){
+      largest = l;
     }
+    hcomp++;
+         
+  
+    // If right child is larger than largest so far 
+    if (r < n && arr[r] > arr[largest]){
+        largest = r; 
+    }
+    hcomp++;
+    // If largest is not root 
+    if (largest != i) 
+    { 
+        swap(arr[i], arr[largest]); 
+        hswap++;
+        // Recursively heapify the affected sub-tree 
+        heapify(arr, n, largest); 
+    } 
+} 
+  
+// main function to do heap sort 
+void heapSort(int arr[], int n) 
+{ 
+    // Build heap (rearrange array) 
+    for (int i = n / 2 - 1; i >= 0; i--) 
+        heapify(arr, n, i); 
+  
+    // One by one extract an element from heap 
+    for (int i=n-1; i>=0; i--) 
+    { 
+        // Move current root to end 
+        swap(arr[0], arr[i]); 
+        hswap++;
+        // call max heapify on the reduced heap 
+        heapify(arr, i, 0); 
+    } 
 }
 //#######################
 void Swap(int arr[], int a, int b) // a,b 스왑 함수 
@@ -44,11 +72,13 @@ int Partition(int arr[], int left, int right)
  
     while (low <= high) // 교차되기 전까지 반복한다 
     {
+        qcomp++;
         while (pivot >= arr[low] && low <= right) // 피벗보다 큰 값을 찾는 과정 
         {
             qcomp++;
             low++; // low를 오른쪽으로 이동 
         }
+        qcomp++;
         while (pivot <= arr[high] && high >= (left+1) ) // 피벗보다 작은 값을 찾는 과정 
         {
             qcomp++;
@@ -73,6 +103,7 @@ void QuickSort(int arr[], int left, int right){
         QuickSort(arr, left, pivot - 1); // 왼쪽 영역을 정렬한다.
         QuickSort(arr, pivot + 1, right); // 오른쪽 영역을 정렬한다.
     }
+    qcomp++;
 }
  
 int main(void){
@@ -80,27 +111,22 @@ int main(void){
     int data[arr_size];
     int qdata[arr_size];
     int hdata[arr_size];
-    //############ fill arr ########
+    //############ fill arr ###########
     srand(time(NULL));
     for(i=0;i<arr_size;i++){
         data[i] = qdata[i] = hdata[i] = rand();
     }
-
-    //########### perfect sort #####
+    //########### perfect sort #########
     sort(data, data+arr_size);
     //############ heap sort #############
-    heap(hdata, arr_size);    
-    for(int i=arr_size-1; i>=0; i--){
-        hswap++;
-        int temp = hdata[i];
-        hdata[i] = hdata[0];
-        hdata[0] = temp;
-        heap(hdata, i);    
-    }
-    
-    //###########quick sort ################
+    clock_t hstart = clock();
+    heapSort(hdata, arr_size);
+    clock_t hend = clock();
+    //########### quick sort ################
+    clock_t qstart = clock();
     QuickSort(qdata, 0, arr_size-1);
-
+    clock_t qend = clock();
+    //########### print result ##############
     for(i=0;i<arr_size;i++){
         if(data[i] != qdata[i]){
             printf("at %d, qsort bug!\n", i);
@@ -111,5 +137,10 @@ int main(void){
             printf("at %d, hsort bug!\n", i);
         }
     }
+    printf("arr size : %d\n", arr_size);
+    printf("quick sorting swap : %d, compare : %d\n", qswap, qcomp);
+    printf("quick sort wall-clock : %0.5f\n", (float)(qend - qstart)/CLOCKS_PER_SEC);
+    printf("heap sorting swap : %d, compare : %d\n", hswap, hcomp);
+    printf("heap sort wall-clock : %0.5f\n", (float)(hend - hstart)/CLOCKS_PER_SEC);
     return 0;
 }
